@@ -3,9 +3,11 @@ from rclpy.node import Node
 from rclpy.callback_groups import ReentrantCallbackGroup
 
 from moveit2_sdk_python.moveit2_sdk_python import Moveit2Python
+from moveit2_sdk_python.franka_mover import FrankaMover
 
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Pose, Point, Quaternion
+from moveit_msgs.msg import MoveItErrorCodes
 
 from std_srvs.srv import Empty, Empty_Request, Empty_Response
 
@@ -19,6 +21,8 @@ class TryNode(Node):
             ee_frame="panda_hand_tcp",
             group_name="panda_manipulator",
         )
+        self.franka_mover = FrankaMover()
+
         self.callback_group = ReentrantCallbackGroup()
 
         self.joint_states: JointState = None
@@ -68,17 +72,21 @@ class TryNode(Node):
         trajectory = await self.api.get_cartesian_path(waypoint)
         result = await self.api.execute_trajectory(trajectory)
 
-        result = await self.api.pour(waypoint[-1].position)
+        result = await self.franka_mover.pour(
+            waypoint[-1].position.x,
+            waypoint[-1].position.y,
+            waypoint[-1].position.z,
+        )
 
-        result = await self.api.move(x=0.5, y=0.0, z=0.3)
+        result = await self.franka_mover.move(x=0.5, y=0.0, z=0.3)
 
         # result = await self.api.grasp()
 
         # result = await self.api.grasp()
 
-        result = await self.api.home()
+        result = await self.franka_mover.home()
 
-        self.get_logger().info(f"{result}")
+        self.get_logger().info(f"{result.error_code}")
         return response
 
 

@@ -11,7 +11,10 @@ setup(
         ("share/" + package_name, ["package.xml"]),
     ],
     install_requires=["setuptools"],
-    py_modules=[f"{package_name}.moveit2_sdk_python"],
+    py_modules=[
+        f"{package_name}.moveit2_sdk_python",
+        f"{package_name}.franka_mover",
+    ],
     zip_safe=True,
     maintainer="jingkun",
     maintainer_email="jingkunliu2025@u.northwestern.edu",
