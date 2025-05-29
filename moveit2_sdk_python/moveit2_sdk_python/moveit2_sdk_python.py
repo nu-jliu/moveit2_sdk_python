@@ -32,6 +32,14 @@ import random
 
 class Moveit2Python:
     def __init__(self, base_frame, ee_frame, group_name):
+        """
+        Initialize the Moveit2Python class.
+
+        Args:
+            base_frame: The name of the base frame of the robot.
+            ee_frame: The name of the end-effector frame of the robot.
+            group_name: The name of the move group to control.
+        """
         self.node = rclpy.create_node(f"moveit2_cli_node_{random.randint(0, 1000)}")
         self.base_frame_id = base_frame
         self.ee_frame_id = ee_frame
@@ -87,20 +95,51 @@ class Moveit2Python:
         self.thread_node.start()
 
     def __del__(self):
+        """
+        Clean up resources when the Moveit2Python object is deleted.
+
+        This method shuts down the ROS 2 node, joins the node spinning thread,
+        destroys the node, and attempts to shut down RCLPY.
+        """
         self.node.get_logger().info("Shutting down api node")
         self.thread_node.join()
         self.node.destroy_node()
         rclpy.try_shutdown()
 
     def spin_node(self):
+        """
+        Spin the ROS 2 node to process callbacks.
+
+        This method checks if RCLPY is initialized, initializes it if not,
+        and then spins the node using the configured executor.
+        This method is typically run in a separate thread.
+        """
         if not rclpy.ok():
             rclpy.init(args=None)
         rclpy.spin(node=self.node, executor=self.executor)
 
     def sub_joint_state_callback(self, msg: JointState):
+        """
+        Callback function for the joint state subscriber.
+
+        Updates the internal robot_state with the received joint state message.
+
+        Args:
+            msg: The received JointState message.
+        """
         self.robot_state.joint_state = msg
 
     async def move_group(self, names, positions):
+        """
+        Move the robot to a specified joint configuration.
+
+        Args:
+            names: A list of joint names.
+            positions: A list of corresponding joint positions.
+
+        Returns:
+            The result of the MoveGroup action.
+        """
         self.node.get_logger().info("Sending request to move group")
         goal = MoveGroup.Goal()
         request = MotionPlanRequest()
@@ -159,6 +198,15 @@ class Moveit2Python:
         return result
 
     async def get_cartesian_path(self, waypoints: list[Pose]):
+        """
+        Compute a Cartesian path through a list of waypoints.
+
+        Args:
+            waypoints: A list of Pose messages representing the waypoints.
+
+        Returns:
+            The computed robot trajectory (solution) or None if planning failed.
+        """
         self.node.get_logger().info("Sending request to get cartesian path")
         request = GetCartesianPath.Request()
         request.header.stamp = self.node.get_clock().now().to_msg()
@@ -189,6 +237,15 @@ class Moveit2Python:
         return result.solution
 
     async def execute_trajectory(self, trajectory: RobotTrajectory):
+        """
+        Execute a pre-computed robot trajectory.
+
+        Args:
+            trajectory: The RobotTrajectory message to execute.
+
+        Returns:
+            The result of the ExecuteTrajectory action.
+        """
         self.node.get_logger().info("Sending request to execute trajectory")
         goal = ExecuteTrajectory.Goal()
         goal.trajectory = trajectory

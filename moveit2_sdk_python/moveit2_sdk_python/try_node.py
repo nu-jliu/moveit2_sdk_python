@@ -15,6 +15,13 @@ from std_srvs.srv import Empty, Empty_Request, Empty_Response
 class TryNode(Node):
 
     def __init__(self):
+        """
+        Initialize the TryNode class.
+
+        This constructor initializes the ROS 2 node, creates instances of
+        Moveit2Python and FrankaMover, sets up a reentrant callback group,
+        subscribes to joint states, and creates a service to test Cartesian paths.
+        """
         super().__init__("try_node")
         self.api = Moveit2Python(
             base_frame="panda_link0",
@@ -43,6 +50,14 @@ class TryNode(Node):
         )
 
     def sub_joint_states_callback(self, msg: JointState):
+        """
+        Callback function for the joint state subscriber.
+
+        Updates the internal joint_states with the received joint state message.
+
+        Args:
+            msg: The received JointState message.
+        """
         self.joint_states = msg
 
     async def srv_test_cartesian_callback(
@@ -50,6 +65,20 @@ class TryNode(Node):
         request: Empty_Request,
         response: Empty_Response,
     ):
+        """
+        Service callback to test a Cartesian path execution.
+
+        This function defines a series of waypoints, computes a Cartesian path,
+        executes the trajectory, performs a pouring motion, moves to another position,
+        and finally moves the robot to its home position.
+
+        Args:
+            request: The Empty request message.
+            response: The Empty response message.
+
+        Returns:
+            The Empty response message.
+        """
 
         if self.joint_states is None:
             return response
@@ -91,6 +120,15 @@ class TryNode(Node):
 
 
 def main(args=None):
+    """
+    Main function to initialize and run the TryNode.
+
+    Initializes RCLPY, creates an instance of TryNode, and spins the node
+    to process callbacks. Handles KeyboardInterrupt for clean shutdown.
+
+    Args:
+        args: Command line arguments.
+    """
     rclpy.init(args=args)
     node = TryNode()
 

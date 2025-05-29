@@ -17,6 +17,14 @@ import random
 
 class FrankaMover:
     def __init__(self) -> None:
+        """
+        Initialize the FrankaMover class.
+
+        This constructor initializes the Moveit2Python API, creates a ROS 2 node,
+        sets up a reentrant callback group and a multi-threaded executor.
+        It also creates an action client for the Franka gripper.
+        Finally, it starts a thread to spin the ROS 2 node.
+        """
         self.api = Moveit2Python(
             base_frame="panda_link0",
             ee_frame="panda_hand_tcp",
@@ -39,17 +47,41 @@ class FrankaMover:
         self.node.get_logger().info("Franka mover initialized")
 
     def __del__(self):
+        """
+        Clean up resources when the FrankaMover object is deleted.
+
+        This method shuts down the ROS 2 node, joins the node spinning thread,
+        destroys the node, and attempts to shut down RCLPY.
+        """
         self.node.get_logger().info("Shutting down franka mover node")
         self.thread_node.join()
         self.node.destroy_node()
         rclpy.try_shutdown()
 
     def spin_node(self):
+        """
+        Spin the ROS 2 node to process callbacks.
+
+        This method checks if RCLPY is initialized, initializes it if not,
+        and then spins the node using the configured executor.
+        This method is typically run in a separate thread.
+        """
         if not rclpy.ok():
             rclpy.init(args=None)
         rclpy.spin(node=self.node, executor=self.executor)
 
     async def pour(self, x: float, y: float, z: float):
+        """
+        Execute a pouring motion.
+
+        Args:
+            x: The x-coordinate of the pouring position.
+            y: The y-coordinate of the pouring position.
+            z: The z-coordinate of the pouring position.
+
+        Returns:
+            The result of the trajectory execution.
+        """
         self.node.get_logger().info("Starting pouring water")
         speech = google_speech.Speech("Pouring", "en")
         speech.play()
@@ -83,6 +115,20 @@ class FrankaMover:
         return result
 
     async def move(self, x: float, y: float, z: float):
+        """
+        Move the robot to a specified Cartesian coordinate.
+
+        The robot first moves to a position 0.1m above the target and then
+        moves to the target position.
+
+        Args:
+            x: The target x-coordinate.
+            y: The target y-coordinate.
+            z: The target z-coordinate.
+
+        Returns:
+            The result of the trajectory execution.
+        """
         self.node.get_logger().info(f"Starting moving to {x, y, z}")
         speech = google_speech.Speech(f"Moving to {x, y, z}", "en")
         speech.play()
@@ -112,6 +158,14 @@ class FrankaMover:
         return result
 
     async def home(self):
+        """
+        Move the robot to its home position.
+
+        The home position is defined by a set of joint angles.
+
+        Returns:
+            The result of the move_group command.
+        """
         speech = google_speech.Speech("Homing", "en")
         speech.play()
 
@@ -130,6 +184,15 @@ class FrankaMover:
         return result
 
     async def grasp(self):
+        """
+        Execute a grasp action using the Franka gripper.
+
+        This method sends a goal to the grasp action server with predefined
+        width, force, speed, and epsilon values.
+
+        Returns:
+            The result of the grasp action.
+        """
         self.node.get_logger().info("Sending request to grasp")
         speech = google_speech.Speech("Grasping", "en")
         speech.play()
