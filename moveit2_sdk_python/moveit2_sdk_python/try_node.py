@@ -15,8 +15,7 @@ from std_srvs.srv import Empty, Empty_Request, Empty_Response
 class TryNode(Node):
 
     def __init__(self):
-        """
-        Initialize the TryNode class.
+        """Initialize the TryNode class.
 
         This constructor initializes the ROS 2 node, creates instances of
         Moveit2Python and FrankaMover, sets up a reentrant callback group,
@@ -50,13 +49,12 @@ class TryNode(Node):
         )
 
     def sub_joint_states_callback(self, msg: JointState):
-        """
-        Callback function for the joint state subscriber.
+        """Callback function for the joint state subscriber.
 
         Updates the internal joint_states with the received joint state message.
 
-        Args:
-            msg: The received JointState message.
+        :param msg: The received JointState message.
+        :type msg: JointState
         """
         self.joint_states = msg
 
@@ -65,19 +63,18 @@ class TryNode(Node):
         request: Empty_Request,
         response: Empty_Response,
     ):
-        """
-        Service callback to test a Cartesian path execution.
+        """Service callback to test a Cartesian path execution.
 
         This function defines a series of waypoints, computes a Cartesian path,
         executes the trajectory, performs a pouring motion, moves to another position,
         and finally moves the robot to its home position.
 
-        Args:
-            request: The Empty request message.
-            response: The Empty response message.
-
-        Returns:
-            The Empty response message.
+        :param request: The Empty request message.
+        :type request: Empty_Request
+        :param response: The Empty response message.
+        :type response: Empty_Response
+        :return: The Empty response message.
+        :rtype: Empty_Response
         """
 
         if self.joint_states is None:
@@ -120,14 +117,13 @@ class TryNode(Node):
 
 
 def main(args=None):
-    """
-    Main function to initialize and run the TryNode.
+    """Main function to initialize and run the TryNode.
 
     Initializes RCLPY, creates an instance of TryNode, and spins the node
     to process callbacks. Handles KeyboardInterrupt for clean shutdown.
 
-    Args:
-        args: Command line arguments.
+    :param args: Command line arguments.
+    :type args: list, optional
     """
     rclpy.init(args=args)
     node = TryNode()
