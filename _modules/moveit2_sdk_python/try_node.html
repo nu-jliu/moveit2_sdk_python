@@ -1,0 +1,242 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>moveit2_sdk_python.try_node &mdash; MoveIt2 SDK Python  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MoveIt2 SDK Python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../franka_mover.html">FrankaMover</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../moveit2_sdk_python.html">Moveit2Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../try_node.html">TryNode</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MoveIt2 SDK Python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">moveit2_sdk_python.try_node</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for moveit2_sdk_python.try_node</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">rclpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rclpy.node</span><span class="w"> </span><span class="kn">import</span> <span class="n">Node</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rclpy.callback_groups</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReentrantCallbackGroup</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">moveit2_sdk_python.moveit2_sdk_python</span><span class="w"> </span><span class="kn">import</span> <span class="n">Moveit2Python</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">moveit2_sdk_python.franka_mover</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrankaMover</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sensor_msgs.msg</span><span class="w"> </span><span class="kn">import</span> <span class="n">JointState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometry_msgs.msg</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pose</span><span class="p">,</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Quaternion</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">moveit_msgs.msg</span><span class="w"> </span><span class="kn">import</span> <span class="n">MoveItErrorCodes</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">std_srvs.srv</span><span class="w"> </span><span class="kn">import</span> <span class="n">Empty</span><span class="p">,</span> <span class="n">Empty_Request</span><span class="p">,</span> <span class="n">Empty_Response</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TryNode</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the TryNode class.</span>
+
+<span class="sd">        This constructor initializes the ROS 2 node, creates instances of</span>
+<span class="sd">        Moveit2Python and FrankaMover, sets up a reentrant callback group,</span>
+<span class="sd">        subscribes to joint states, and creates a service to test Cartesian paths.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;try_node&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">Moveit2Python</span><span class="p">(</span>
+            <span class="n">base_frame</span><span class="o">=</span><span class="s2">&quot;panda_link0&quot;</span><span class="p">,</span>
+            <span class="n">ee_frame</span><span class="o">=</span><span class="s2">&quot;panda_hand_tcp&quot;</span><span class="p">,</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;panda_manipulator&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">franka_mover</span> <span class="o">=</span> <span class="n">FrankaMover</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback_group</span> <span class="o">=</span> <span class="n">ReentrantCallbackGroup</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">joint_states</span><span class="p">:</span> <span class="n">JointState</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_joint_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_subscription</span><span class="p">(</span>
+            <span class="n">JointState</span><span class="p">,</span>
+            <span class="s2">&quot;joint_states&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sub_joint_states_callback</span><span class="p">,</span>
+            <span class="mi">10</span><span class="p">,</span>
+            <span class="n">callback_group</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">callback_group</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">srv_test_cartesian</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_service</span><span class="p">(</span>
+            <span class="n">Empty</span><span class="p">,</span>
+            <span class="s2">&quot;test_cartesian&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">srv_test_cartesian_callback</span><span class="p">,</span>
+            <span class="n">callback_group</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">callback_group</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">sub_joint_states_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">JointState</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Callback function for the joint state subscriber.</span>
+
+<span class="sd">        Updates the internal joint_states with the received joint state message.</span>
+
+<span class="sd">        :param msg: The received JointState message.</span>
+<span class="sd">        :type msg: JointState</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">joint_states</span> <span class="o">=</span> <span class="n">msg</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">srv_test_cartesian_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">request</span><span class="p">:</span> <span class="n">Empty_Request</span><span class="p">,</span>
+        <span class="n">response</span><span class="p">:</span> <span class="n">Empty_Response</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Service callback to test a Cartesian path execution.</span>
+
+<span class="sd">        This function defines a series of waypoints, computes a Cartesian path,</span>
+<span class="sd">        executes the trajectory, performs a pouring motion, moves to another position,</span>
+<span class="sd">        and finally moves the robot to its home position.</span>
+
+<span class="sd">        :param request: The Empty request message.</span>
+<span class="sd">        :type request: Empty_Request</span>
+<span class="sd">        :param response: The Empty response message.</span>
+<span class="sd">        :type response: Empty_Response</span>
+<span class="sd">        :return: The Empty response message.</span>
+<span class="sd">        :rtype: Empty_Response</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span>
+
+        <span class="n">waypoint</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Pose</span><span class="p">(</span>
+                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.4</span><span class="p">),</span>
+                <span class="n">orientation</span><span class="o">=</span><span class="n">Quaternion</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">Pose</span><span class="p">(</span>
+                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.4</span><span class="p">),</span>
+                <span class="n">orientation</span><span class="o">=</span><span class="n">Quaternion</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">Pose</span><span class="p">(</span>
+                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.4</span><span class="p">),</span>
+                <span class="n">orientation</span><span class="o">=</span><span class="n">Quaternion</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="n">trajectory</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_cartesian_path</span><span class="p">(</span><span class="n">waypoint</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">execute_trajectory</span><span class="p">(</span><span class="n">trajectory</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">franka_mover</span><span class="o">.</span><span class="n">pour</span><span class="p">(</span>
+            <span class="n">waypoint</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">waypoint</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">waypoint</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">franka_mover</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+        <span class="c1"># result = await self.api.grasp()</span>
+
+        <span class="c1"># result = await self.api.grasp()</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">franka_mover</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">error_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../try_node.html#moveit2_sdk_python.try_node.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main function to initialize and run the TryNode.</span>
+
+<span class="sd">    Initializes RCLPY, creates an instance of TryNode, and spins the node</span>
+<span class="sd">    to process callbacks. Handles KeyboardInterrupt for clean shutdown.</span>
+
+<span class="sd">    :param args: Command line arguments.</span>
+<span class="sd">    :type args: list, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rclpy</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">node</span> <span class="o">=</span> <span class="n">TryNode</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">rclpy</span><span class="o">.</span><span class="n">spin</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">destroy_node</span><span class="p">()</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">rclpy</span><span class="o">.</span><span class="n">try_shutdown</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Project Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -45,7 +45,19 @@
               <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="franka_mover.html">FrankaMover</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Moveit2Python</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Moveit2Python</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python"><code class="docutils literal notranslate"><span class="pre">Moveit2Python</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.__init__"><code class="docutils literal notranslate"><span class="pre">Moveit2Python.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.__del__"><code class="docutils literal notranslate"><span class="pre">Moveit2Python.__del__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.spin_node"><code class="docutils literal notranslate"><span class="pre">Moveit2Python.spin_node()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.sub_joint_state_callback"><code class="docutils literal notranslate"><span class="pre">Moveit2Python.sub_joint_state_callback()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.move_group"><code class="docutils literal notranslate"><span class="pre">Moveit2Python.move_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.get_cartesian_path"><code class="docutils literal notranslate"><span class="pre">Moveit2Python.get_cartesian_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.execute_trajectory"><code class="docutils literal notranslate"><span class="pre">Moveit2Python.execute_trajectory()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="try_node.html">TryNode</a></li>
 </ul>
 
@@ -76,6 +88,120 @@
   <section id="moveit2python">
 <h1>Moveit2Python<a class="headerlink" href="#moveit2python" title="Link to this heading"></a></h1>
 <p>The Moveit2Python class provides the core MoveIt2 interface for motion planning and execution. This is the low-level API that interfaces directly with MoveIt2 services and actions.</p>
+<dl class="py class" id="module-moveit2_sdk_python.moveit2_sdk_python">
+<dt class="sig sig-object py" id="moveit2_sdk_python.moveit2_sdk_python.Moveit2Python">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">moveit2_sdk_python.moveit2_sdk_python.</span></span><span class="sig-name descname"><span class="pre">Moveit2Python</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ee_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/moveit2_sdk_python.html#Moveit2Python"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Initialize the Moveit2Python class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_frame</strong> (<em>str</em>) – The name of the base frame of the robot.</p></li>
+<li><p><strong>ee_frame</strong> (<em>str</em>) – The name of the end-effector frame of the robot.</p></li>
+<li><p><strong>group_name</strong> (<em>str</em>) – The name of the move group to control.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ee_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/moveit2_sdk_python.html#Moveit2Python.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the Moveit2Python class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_frame</strong> (<em>str</em>) – The name of the base frame of the robot.</p></li>
+<li><p><strong>ee_frame</strong> (<em>str</em>) – The name of the end-effector frame of the robot.</p></li>
+<li><p><strong>group_name</strong> (<em>str</em>) – The name of the move group to control.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.__del__">
+<span class="sig-name descname"><span class="pre">__del__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/moveit2_sdk_python.html#Moveit2Python.__del__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.__del__" title="Link to this definition"></a></dt>
+<dd><p>Clean up resources when the Moveit2Python object is deleted.</p>
+<p>This method shuts down the ROS 2 node, joins the node spinning thread,
+destroys the node, and attempts to shut down RCLPY.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.spin_node">
+<span class="sig-name descname"><span class="pre">spin_node</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/moveit2_sdk_python.html#Moveit2Python.spin_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.spin_node" title="Link to this definition"></a></dt>
+<dd><p>Spin the ROS 2 node to process callbacks.</p>
+<p>This method checks if RCLPY is initialized, initializes it if not,
+and then spins the node using the configured executor.
+This method is typically run in a separate thread.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.sub_joint_state_callback">
+<span class="sig-name descname"><span class="pre">sub_joint_state_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg:</span> <span class="pre">&lt;MagicMock</span> <span class="pre">id='140299215925744'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/moveit2_sdk_python.html#Moveit2Python.sub_joint_state_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.sub_joint_state_callback" title="Link to this definition"></a></dt>
+<dd><p>Callback function for the joint state subscriber.</p>
+<p>Updates the internal robot_state with the received joint state message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>JointState</em>) – The received JointState message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.move_group">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/moveit2_sdk_python.html#Moveit2Python.move_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.move_group" title="Link to this definition"></a></dt>
+<dd><p>Move the robot to a specified joint configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of joint names.</p></li>
+<li><p><strong>positions</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – A list of corresponding joint positions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The result of the MoveGroup action.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.get_cartesian_path">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_cartesian_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">waypoints:</span> <span class="pre">list[&lt;MagicMock</span> <span class="pre">id='140299213116208'&gt;]</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/moveit2_sdk_python.html#Moveit2Python.get_cartesian_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.get_cartesian_path" title="Link to this definition"></a></dt>
+<dd><p>Compute a Cartesian path through a list of waypoints.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>waypoints</strong> (<em>list</em><em>[</em><em>Pose</em><em>]</em>) – A list of Pose messages representing the waypoints.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The computed robot trajectory (solution) or None if planning failed.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>RobotTrajectory or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.execute_trajectory">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">execute_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory:</span> <span class="pre">&lt;MagicMock</span> <span class="pre">id='140299214982640'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/moveit2_sdk_python.html#Moveit2Python.execute_trajectory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.moveit2_sdk_python.Moveit2Python.execute_trajectory" title="Link to this definition"></a></dt>
+<dd><p>Execute a pre-computed robot trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>trajectory</strong> (<em>RobotTrajectory</em>) – The RobotTrajectory message to execute.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The result of the ExecuteTrajectory action.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

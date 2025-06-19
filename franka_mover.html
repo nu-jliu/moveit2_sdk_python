@@ -44,7 +44,19 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">FrankaMover</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">FrankaMover</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#moveit2_sdk_python.franka_mover.FrankaMover"><code class="docutils literal notranslate"><span class="pre">FrankaMover</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.franka_mover.FrankaMover.__init__"><code class="docutils literal notranslate"><span class="pre">FrankaMover.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.franka_mover.FrankaMover.__del__"><code class="docutils literal notranslate"><span class="pre">FrankaMover.__del__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.franka_mover.FrankaMover.spin_node"><code class="docutils literal notranslate"><span class="pre">FrankaMover.spin_node()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.franka_mover.FrankaMover.pour"><code class="docutils literal notranslate"><span class="pre">FrankaMover.pour()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.franka_mover.FrankaMover.move"><code class="docutils literal notranslate"><span class="pre">FrankaMover.move()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.franka_mover.FrankaMover.home"><code class="docutils literal notranslate"><span class="pre">FrankaMover.home()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moveit2_sdk_python.franka_mover.FrankaMover.grasp"><code class="docutils literal notranslate"><span class="pre">FrankaMover.grasp()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="moveit2_sdk_python.html">Moveit2Python</a></li>
 <li class="toctree-l1"><a class="reference internal" href="try_node.html">TryNode</a></li>
 </ul>
@@ -76,6 +88,119 @@
   <section id="frankamover">
 <h1>FrankaMover<a class="headerlink" href="#frankamover" title="Link to this heading"></a></h1>
 <p>The FrankaMover class provides a high-level interface for controlling the Franka Emika Panda robot with built-in safety features and convenient methods for common robotic tasks.</p>
+<dl class="py class" id="module-moveit2_sdk_python.franka_mover">
+<dt class="sig sig-object py" id="moveit2_sdk_python.franka_mover.FrankaMover">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">moveit2_sdk_python.franka_mover.</span></span><span class="sig-name descname"><span class="pre">FrankaMover</span></span><a class="reference internal" href="_modules/moveit2_sdk_python/franka_mover.html#FrankaMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.franka_mover.FrankaMover" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Initialize the FrankaMover class.</p>
+<p>This constructor initializes the Moveit2Python API, creates a ROS 2 node,
+sets up a reentrant callback group and a multi-threaded executor.
+It also creates an action client for the Franka gripper.
+Finally, it starts a thread to spin the ROS 2 node.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.franka_mover.FrankaMover.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/moveit2_sdk_python/franka_mover.html#FrankaMover.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.franka_mover.FrankaMover.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the FrankaMover class.</p>
+<p>This constructor initializes the Moveit2Python API, creates a ROS 2 node,
+sets up a reentrant callback group and a multi-threaded executor.
+It also creates an action client for the Franka gripper.
+Finally, it starts a thread to spin the ROS 2 node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.franka_mover.FrankaMover.__del__">
+<span class="sig-name descname"><span class="pre">__del__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/franka_mover.html#FrankaMover.__del__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.franka_mover.FrankaMover.__del__" title="Link to this definition"></a></dt>
+<dd><p>Clean up resources when the FrankaMover object is deleted.</p>
+<p>This method shuts down the ROS 2 node, joins the node spinning thread,
+destroys the node, and attempts to shut down RCLPY.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.franka_mover.FrankaMover.spin_node">
+<span class="sig-name descname"><span class="pre">spin_node</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/franka_mover.html#FrankaMover.spin_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.franka_mover.FrankaMover.spin_node" title="Link to this definition"></a></dt>
+<dd><p>Spin the ROS 2 node to process callbacks.</p>
+<p>This method checks if RCLPY is initialized, initializes it if not,
+and then spins the node using the configured executor.
+This method is typically run in a separate thread.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.franka_mover.FrankaMover.pour">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/franka_mover.html#FrankaMover.pour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.franka_mover.FrankaMover.pour" title="Link to this definition"></a></dt>
+<dd><p>Execute a pouring motion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – The x-coordinate of the pouring position.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – The y-coordinate of the pouring position.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – The z-coordinate of the pouring position.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The result of the trajectory execution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.franka_mover.FrankaMover.move">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/franka_mover.html#FrankaMover.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.franka_mover.FrankaMover.move" title="Link to this definition"></a></dt>
+<dd><p>Move the robot to a specified Cartesian coordinate.</p>
+<p>The robot first moves to a position 0.1m above the target and then
+moves to the target position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – The target x-coordinate.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – The target y-coordinate.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – The target z-coordinate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The result of the trajectory execution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.franka_mover.FrankaMover.home">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">home</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/franka_mover.html#FrankaMover.home"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.franka_mover.FrankaMover.home" title="Link to this definition"></a></dt>
+<dd><p>Move the robot to its home position.</p>
+<p>The home position is defined by a set of joint angles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The result of the move_group command.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="moveit2_sdk_python.franka_mover.FrankaMover.grasp">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">grasp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/moveit2_sdk_python/franka_mover.html#FrankaMover.grasp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#moveit2_sdk_python.franka_mover.FrankaMover.grasp" title="Link to this definition"></a></dt>
+<dd><p>Execute a grasp action using the Franka gripper.</p>
+<p>This method sends a goal to the grasp action server with predefined
+width, force, speed, and epsilon values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The result of the grasp action.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

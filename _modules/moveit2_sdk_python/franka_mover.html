@@ -1,0 +1,347 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>moveit2_sdk_python.franka_mover &mdash; MoveIt2 SDK Python  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MoveIt2 SDK Python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../franka_mover.html">FrankaMover</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../moveit2_sdk_python.html">Moveit2Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../try_node.html">TryNode</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MoveIt2 SDK Python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">moveit2_sdk_python.franka_mover</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for moveit2_sdk_python.franka_mover</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">rclpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">rclpy.node</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rclpy.callback_groups</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReentrantCallbackGroup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rclpy.executors</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiThreadedExecutor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rclpy.action</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionClient</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">google_speech</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">moveit2_sdk_python.moveit2_sdk_python</span><span class="w"> </span><span class="kn">import</span> <span class="n">Moveit2Python</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometry_msgs.msg</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pose</span><span class="p">,</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Quaternion</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">franka_msgs.action</span><span class="w"> </span><span class="kn">import</span> <span class="n">Grasp</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+
+
+<div class="viewcode-block" id="FrankaMover">
+<a class="viewcode-back" href="../../franka_mover.html#moveit2_sdk_python.franka_mover.FrankaMover">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FrankaMover</span><span class="p">:</span>
+<div class="viewcode-block" id="FrankaMover.__init__">
+<a class="viewcode-back" href="../../franka_mover.html#moveit2_sdk_python.franka_mover.FrankaMover.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the FrankaMover class.</span>
+
+<span class="sd">        This constructor initializes the Moveit2Python API, creates a ROS 2 node,</span>
+<span class="sd">        sets up a reentrant callback group and a multi-threaded executor.</span>
+<span class="sd">        It also creates an action client for the Franka gripper.</span>
+<span class="sd">        Finally, it starts a thread to spin the ROS 2 node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">Moveit2Python</span><span class="p">(</span>
+            <span class="n">base_frame</span><span class="o">=</span><span class="s2">&quot;panda_link0&quot;</span><span class="p">,</span>
+            <span class="n">ee_frame</span><span class="o">=</span><span class="s2">&quot;panda_hand_tcp&quot;</span><span class="p">,</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;panda_manipulator&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">rclpy</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;franka_mover_</span><span class="si">{</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback_group</span> <span class="o">=</span> <span class="n">ReentrantCallbackGroup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">=</span> <span class="n">MultiThreadedExecutor</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cli_action_grasp</span> <span class="o">=</span> <span class="n">ActionClient</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">,</span>
+            <span class="n">Grasp</span><span class="p">,</span>
+            <span class="s2">&quot;panda_gripper/grasp&quot;</span><span class="p">,</span>
+            <span class="n">callback_group</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">callback_group</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread_node</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spin_node</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread_node</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Franka mover initialized&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FrankaMover.__del__">
+<a class="viewcode-back" href="../../franka_mover.html#moveit2_sdk_python.franka_mover.FrankaMover.__del__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean up resources when the FrankaMover object is deleted.</span>
+
+<span class="sd">        This method shuts down the ROS 2 node, joins the node spinning thread,</span>
+<span class="sd">        destroys the node, and attempts to shut down RCLPY.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Shutting down franka mover node&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread_node</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">destroy_node</span><span class="p">()</span>
+        <span class="n">rclpy</span><span class="o">.</span><span class="n">try_shutdown</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FrankaMover.spin_node">
+<a class="viewcode-back" href="../../franka_mover.html#moveit2_sdk_python.franka_mover.FrankaMover.spin_node">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spin_node</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Spin the ROS 2 node to process callbacks.</span>
+
+<span class="sd">        This method checks if RCLPY is initialized, initializes it if not,</span>
+<span class="sd">        and then spins the node using the configured executor.</span>
+<span class="sd">        This method is typically run in a separate thread.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rclpy</span><span class="o">.</span><span class="n">ok</span><span class="p">():</span>
+            <span class="n">rclpy</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">rclpy</span><span class="o">.</span><span class="n">spin</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="n">executor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FrankaMover.pour">
+<a class="viewcode-back" href="../../franka_mover.html#moveit2_sdk_python.franka_mover.FrankaMover.pour">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute a pouring motion.</span>
+
+<span class="sd">        :param x: The x-coordinate of the pouring position.</span>
+<span class="sd">        :type x: float</span>
+<span class="sd">        :param y: The y-coordinate of the pouring position.</span>
+<span class="sd">        :type y: float</span>
+<span class="sd">        :param z: The z-coordinate of the pouring position.</span>
+<span class="sd">        :type z: float</span>
+<span class="sd">        :return: The result of the trajectory execution.</span>
+<span class="sd">        :rtype: any</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting pouring water&quot;</span><span class="p">)</span>
+        <span class="n">speech</span> <span class="o">=</span> <span class="n">google_speech</span><span class="o">.</span><span class="n">Speech</span><span class="p">(</span><span class="s2">&quot;Pouring&quot;</span><span class="p">,</span> <span class="s2">&quot;en&quot;</span><span class="p">)</span>
+        <span class="n">speech</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+        <span class="n">position</span> <span class="o">=</span> <span class="n">Point</span><span class="p">()</span>
+        <span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">position</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">z</span>
+
+        <span class="n">planned_trajectory</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_cartesian_path</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">Pose</span><span class="p">(</span>
+                    <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
+                    <span class="n">orientation</span><span class="o">=</span><span class="n">Quaternion</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">execute_trajectory</span><span class="p">(</span><span class="n">planned_trajectory</span><span class="p">)</span>
+
+        <span class="n">ori_pour</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="p">()</span>
+        <span class="n">ori_pour</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.923879532511287</span>
+        <span class="n">ori_pour</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">ori_pour</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="mf">0.382683432365090</span>
+        <span class="n">ori_pour</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">planned_trajectory</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_cartesian_path</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">ori_pour</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">execute_trajectory</span><span class="p">(</span><span class="n">planned_trajectory</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished pouring water&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="FrankaMover.move">
+<a class="viewcode-back" href="../../franka_mover.html#moveit2_sdk_python.franka_mover.FrankaMover.move">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Move the robot to a specified Cartesian coordinate.</span>
+
+<span class="sd">        The robot first moves to a position 0.1m above the target and then</span>
+<span class="sd">        moves to the target position.</span>
+
+<span class="sd">        :param x: The target x-coordinate.</span>
+<span class="sd">        :type x: float</span>
+<span class="sd">        :param y: The target y-coordinate.</span>
+<span class="sd">        :type y: float</span>
+<span class="sd">        :param z: The target z-coordinate.</span>
+<span class="sd">        :type z: float</span>
+<span class="sd">        :return: The result of the trajectory execution.</span>
+<span class="sd">        :rtype: any</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting moving to </span><span class="si">{</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">z</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">speech</span> <span class="o">=</span> <span class="n">google_speech</span><span class="o">.</span><span class="n">Speech</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Moving to </span><span class="si">{</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">z</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;en&quot;</span><span class="p">)</span>
+        <span class="n">speech</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+        <span class="n">pose1</span> <span class="o">=</span> <span class="n">Pose</span><span class="p">()</span>
+        <span class="n">pose1</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">pose1</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="n">pose1</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">z</span> <span class="o">+</span> <span class="mf">0.1</span>
+        <span class="n">pose1</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">pose1</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">pose1</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">pose1</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">pose2</span> <span class="o">=</span> <span class="n">Pose</span><span class="p">()</span>
+        <span class="n">pose2</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">pose2</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="n">pose2</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">z</span>
+        <span class="n">pose2</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">pose2</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">pose2</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">pose2</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">planned_traj</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_cartesian_path</span><span class="p">([</span><span class="n">pose1</span><span class="p">,</span> <span class="n">pose2</span><span class="p">])</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">execute_trajectory</span><span class="p">(</span><span class="n">planned_traj</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Finished move to position </span><span class="si">{</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">z</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="FrankaMover.home">
+<a class="viewcode-back" href="../../franka_mover.html#moveit2_sdk_python.franka_mover.FrankaMover.home">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Move the robot to its home position.</span>
+
+<span class="sd">        The home position is defined by a set of joint angles.</span>
+
+<span class="sd">        :return: The result of the move_group command.</span>
+<span class="sd">        :rtype: any</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">speech</span> <span class="o">=</span> <span class="n">google_speech</span><span class="o">.</span><span class="n">Speech</span><span class="p">(</span><span class="s2">&quot;Homing&quot;</span><span class="p">,</span> <span class="s2">&quot;en&quot;</span><span class="p">)</span>
+        <span class="n">speech</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;panda_joint</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">)]</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="o">-</span><span class="mf">0.7853981633974483</span><span class="p">,</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="o">-</span><span class="mf">2.356194490192345</span><span class="p">,</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">1.5707963267948966</span><span class="p">,</span>
+            <span class="mf">0.7853981633974483</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">move_group</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="FrankaMover.grasp">
+<a class="viewcode-back" href="../../franka_mover.html#moveit2_sdk_python.franka_mover.FrankaMover.grasp">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">grasp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute a grasp action using the Franka gripper.</span>
+
+<span class="sd">        This method sends a goal to the grasp action server with predefined</span>
+<span class="sd">        width, force, speed, and epsilon values.</span>
+
+<span class="sd">        :return: The result of the grasp action.</span>
+<span class="sd">        :rtype: any</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Sending request to grasp&quot;</span><span class="p">)</span>
+        <span class="n">speech</span> <span class="o">=</span> <span class="n">google_speech</span><span class="o">.</span><span class="n">Speech</span><span class="p">(</span><span class="s2">&quot;Grasping&quot;</span><span class="p">,</span> <span class="s2">&quot;en&quot;</span><span class="p">)</span>
+        <span class="n">speech</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+        <span class="n">goal</span> <span class="o">=</span> <span class="n">Grasp</span><span class="o">.</span><span class="n">Goal</span><span class="p">()</span>
+        <span class="n">goal</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mf">0.04</span>
+        <span class="n">goal</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="mf">50.0</span>
+        <span class="n">goal</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="n">goal</span><span class="o">.</span><span class="n">epsilon</span><span class="o">.</span><span class="n">inner</span> <span class="o">=</span> <span class="mf">0.004</span>
+        <span class="n">goal</span><span class="o">.</span><span class="n">epsilon</span><span class="o">.</span><span class="n">outer</span> <span class="o">=</span> <span class="mf">0.004</span>
+
+        <span class="n">future</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cli_action_grasp</span><span class="o">.</span><span class="n">send_goal_async</span><span class="p">(</span><span class="n">goal</span><span class="p">)</span>
+        <span class="c1"># rclpy.spin_until_future_complete(</span>
+        <span class="c1">#     node=self.node,</span>
+        <span class="c1">#     future=future,</span>
+        <span class="c1">#     timeout_sec=10.0,</span>
+        <span class="c1"># )</span>
+        <span class="k">await</span> <span class="n">future</span>
+
+        <span class="n">future</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">get_result_async</span><span class="p">()</span>
+        <span class="c1"># rclpy.spin_until_future_complete(</span>
+        <span class="c1">#     node=self.node,</span>
+        <span class="c1">#     future=future,</span>
+        <span class="c1">#     timeout_sec=10.0,</span>
+        <span class="c1"># )</span>
+        <span class="k">await</span> <span class="n">future</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">result</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Grasp finished&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Project Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
