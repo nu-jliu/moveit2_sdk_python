@@ -26,7 +26,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # Change to package directory to find docs-requirements.txt
-          cd ${{ github.workspace }}/src/moveit2_sdk_python
+          cd ${{ github.workspace }}
           if [ -f docs-requirements.txt ]; then
             pip install -r docs-requirements.txt;
           else
@@ -38,7 +38,7 @@ jobs:
 
       - name: Build Sphinx documentation
         run: |
-          cd ${{ github.workspace }}/src/moveit2_sdk_python
+          cd ${{ github.workspace }}
           # Install the package in development mode so Sphinx can find the modules
           pip install -e .
           cd docs
