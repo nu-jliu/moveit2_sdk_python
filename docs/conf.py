@@ -8,6 +8,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
+    'm2r2',
 ]
 html_theme = 'sphinx_rtd_theme'
 
@@ -37,3 +38,9 @@ napoleon_use_admonition_for_references = False
 napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
+
+# Source file suffixes
+source_suffix = {
+    '.rst': None,
+    '.md': None,
+}
