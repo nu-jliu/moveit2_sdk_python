@@ -55,7 +55,7 @@ jobs:
           sudo apt upgrade -y
 
       - name: Install ROS2 humble
-        run: sudo apt install ros-humble-desktop-full ros-dev-tools ros-humble-moveit* ros-humble-nav2* -y
+        run: sudo apt install ros-humble-desktop-full ros-dev-tools ros-humble-moveit* -y
 
       - name: Install dependencies
         run: |
