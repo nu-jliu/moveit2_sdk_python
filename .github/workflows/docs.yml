@@ -47,6 +47,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ github.workspace }}/src/moveit2_sdk_python/docs/_build/html
+          publish_dir: ${{ github.workspace }}/docs/_build/html
           # Optional: specify a custom domain if you have one
           # cname: docs.example.com
