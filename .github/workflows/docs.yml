@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          path: ${{ github.workspace }}
 
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -35,16 +37,12 @@ jobs:
           # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Build Sphinx documentation
-        run: |
-          # Change to the package directory to match local build environment
-          cd src/moveit2_sdk_python
-          # Build documentation with verbose output
-          sphinx-build -b html docs docs/_build/html -v
+        run: sphinx-build -b html ${{ github.workspace }}/docs ${{ github.workspace }}/docs/_build/html -v
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: src/moveit2_sdk_python/docs/_build/html
+          publish_dir: ${{ github.workspace }}/docs/_build/html
           # Optional: specify a custom domain if you have one
           # cname: docs.example.com
