@@ -79,6 +79,7 @@ jobs:
           cd ${{ github.workspace }}
           # Install the package in development mode so Sphinx can find the modules
           cd docs
+          source /opt/ros/humble/setup.bash
           sphinx-build -b html . _build/html -v
 
       - name: Deploy to GitHub Pages
