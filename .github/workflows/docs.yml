@@ -26,7 +26,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # Change to package directory to find docs-requirements.txt
-          cd src/moveit2_sdk_python
+          cd ${{ github.workspace }}
           if [ -f docs-requirements.txt ]; then
             pip install -r docs-requirements.txt;
           else
