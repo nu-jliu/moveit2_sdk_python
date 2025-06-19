@@ -1,9 +1,11 @@
-Welcome to MoveIt2 SDK Python's documentation!
-===============================================
+.. mdinclude:: README.md
+
+API Reference
+=============
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: API Documentation:
 
    franka_mover
    moveit2_sdk_python
