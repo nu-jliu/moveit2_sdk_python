@@ -2,6 +2,20 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../moveit2_sdk_python'))
 
+# Mock imports for missing dependencies
+from unittest.mock import MagicMock
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+        return MagicMock()
+
+MOCK_MODULES = ['google_speech', 'franka_msgs', 'franka_msgs.action', 'rclpy', 'rclpy.node', 
+                'rclpy.callback_groups', 'rclpy.executors', 'rclpy.action', 'rclpy.task',
+                'geometry_msgs.msg', 'moveit_msgs.msg', 'moveit_msgs.srv', 'sensor_msgs.msg', 
+                'std_srvs.srv', 'builtin_interfaces.msg', 'trajectory_msgs.msg']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
 project = 'MoveIt2 SDK Python'
 copyright = '2023, Project Contributors'
 extensions = [
